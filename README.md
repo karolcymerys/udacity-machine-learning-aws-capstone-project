@@ -2,19 +2,17 @@
 
 This is solution of capstone projection in Udacity Machine Learning program.
 
-This project aims to solve object counting project on provided images of bins. 
+This project aims to solve object counting project for provided images of bins. 
 Provided solutions can be utilized in delivery centers for inventory level monitoring.
 
-This project utilizes [Amazon Bin Image Dataset [1]](https://registry.opendata.aws/amazon-bin-imagery/) to propose three solutions:
+This project utilizes [Amazon Bin Image Dataset [1]](https://registry.opendata.aws/amazon-bin-imagery/) to propose two solutions:
 - pre-trained **ResNet18** model with fine-tuned head adjusted for regression problem
 - pre-trained **ResNet101** model with fine-tuned head adjusted for regression problem
-- pre-trained **Mask R-CNN** model used for instance segmentation, number of detected objects is used as response of model
 
 This project utilizes **AWS Cloud** and **AWS SageMaker** to perform following steps:
 - Preparing datasets
 - Training and evaluation **ResNet18** (baseline model)
 - Training and evaluation **ResNet101** (target model)
-- Training and evaluation **Mask R-CNN**
 
 ## Try it yourself
 
@@ -46,7 +44,6 @@ udacity-machine-learning-aws-capstone-project/
 ├── assets/               # Folder containing screenshots of loss chars from Tensorboard
 ├── src/                  # Folder with source files
 ├   ├── inference.py      # Python script used for Batch Transform Job for ResNet-based model (can be used to host SageMaker Endpoint)
-├   ├── rcnn-inference.py # Python script used for Batch Transform Job for Mask R-CNN model (can be used to host SageMaker Endpoint)
 ├   └── train.py          # Python script used for training ResNet-based model in SageMaker
 ├── proposal.md           # Proposal document as Markdown file
 ├── proposal.pdf          # Proposal document as PDF file
