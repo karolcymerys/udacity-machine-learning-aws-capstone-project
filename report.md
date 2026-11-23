@@ -2,9 +2,10 @@
 
 ## Problem definition
 
-One of the challenges in distribution centers is inventory level monitoring.
-This project aims to prepare solution that would allow to automate this process.
-Based on provided image of bin, solution is supposed to provide number of objects in bin.
+One of the biggest challenges in distribution centers is inventory level monitoring. 
+Lack of knowledge about current goods level can lead to delivery delays and incur additional costs for distribution centers. 
+This project aims to address this problem by preparing solution that would allow to automate this process.
+It proposes machine learning based solution that predicts number of items in bin on provided image.
 
 ## Dataset
 
@@ -47,20 +48,41 @@ On provided images following transformation were performed:
 
 ## Solutions
 
-Problem to solve is regression problem: for provided image solution needs to provide number of items detected in bin.
-Since this problem requires image processing, the best solution is to use pre-trained vision models.
-This project proposed two solutions.
+From technical point of view, problem to be solved is a regression problem - for provided image solution needs to provide number of items detected in bin.
+Since this problem requires image processing, the best option is to employ one of popular pre-trained vision models.
 
-First solution is baseline model. It employs popular vision model **ResNet-18**. 
-Since this model was primarily built to solve image classification problem, model needs to be adjusted for regression:
-classification head is replaced by dense layer with one numeric output. 
-For training, all weights of backbone part are frozen and only last layer is trainable.
-Second solution employs bigger version of that architecture **ResNet-101** while keeping the same architecture changes 
-as baseline model. Both models were trained in multi-node SageMaker environment utilizing PyTorch framework:
-models were stored on all nodes, while splitting training and validation subsets across nodes, 
-running forward and backward phases independently and applying averaged gradient changes on models.
-For inference, predicted value should be rounded to closest non-negative integer.
-For both cases below hyperparameters were utilized:
+As a foundation for both of proposed solutions ResNet architecture was selected [2]. 
+It's one of the most popular vision model designed to solve image classification problems. 
+Its characteristics - residual networks - allowed to reduce vanishing gradient problem while still being relatively deep network.
+Original paper proposes multiple versions that differs with number of layers:
+- ResNet18
+- ResNet34
+- ResNet50
+- ResNet101
+- ResNet152
+
+First proposed solution is baseline model. It employs first vision of model ResNet architecture: **ResNet-18**. 
+Since this model was primarily built to solve image classification problem, there are required adjustments to enable it to solve regression problem:
+- classification head is replaced by dense layer with one numeric output.
+
+Second solution employs bigger version of that architecture **ResNet-101**. 
+To enable this model to solve regression problem the same architecture changes were applied as for baseline model. 
+
+Both models were trained in multi-node SageMaker environment utilizing PyTorch framework that enables Distributed Data Processing:
+- copies of model are stored on all nodes
+- training and validation subsets are split across nodes 
+- forward and backward are run phases independently for nodes
+- weights are updated based on averaged gradient changes from all nodes
+
+Training phase was performed on two SageMaker instances: `ml.g4dn.xlarge`. 
+This is the cheapest instance that provides GPU capabilities. 
+It offers **NVIDIA T4 GPU with 16 GB vRAM**, **4 vCPUs** and **16 GiB memory**
+
+For training, pre-trained version of these ResNet variants were obtained from PyTorch library. 
+Both models were pre-trained on the ImageNet-1K (ILSVRC 2012) dataset.
+All weights of backbone part were frozen and only the last layer was trained.
+
+During training phase, following hyperparameters were used:
 
 | Hyperparameter                                    | Value |
 |---------------------------------------------------|-------|
@@ -69,11 +91,13 @@ For both cases below hyperparameters were utilized:
 | Learning rate                                     | 0.003 |
 | Early stopping after n epochs without improvement | 2     |
 
+For inference to get the final predications, predicted values should be rounded to closest non-negative integer.
+
 ## Evaluation
 
 In order to evaluate performance of these solutions, test subset with 80,596 images is utilized. 
 For each of these solutions **AWS Sagemaker Transform Batch** Job is set up to calculate responses for all images from test subset.
-Results of these computations allows to measure performances.
+Results of these computations allows to measure models' performances.
 
 For evaluation purposes following metrics are utilized:
 - Mean Absolute Error (MAE)
@@ -82,7 +106,7 @@ For evaluation purposes following metrics are utilized:
 
 These metrics are typical for regression problems.
 
-Above procedure allowed to obtain following results:
+Performed procedure allowed to obtain following results:
 
 | Model      | MAE    | RMSE   | R^2    |
 |------------|--------|--------|--------|
@@ -93,7 +117,7 @@ First metric (MSE) shows that obtained models make mistakes. The Mean Absolute E
 On average predictions are off by about 2-3 items. While for large bins (above 100 items) this might be minor error, for small bins (1-10 items) it's quite significant.
 
 Second metric (Root Mean Squared Error) reports 5.44 and 5.40 for *ResNet18* and *ResNet101* respectively. 
-Because RMSE squares individual errors before averaging, it penalizes larger mistakes heavier than MSE.
+Because RMSE squares individual errors before averaging, it penalizes larger Kmistakes heavier than MSE.
 This suggests that both models may struggle more with larger bins where bigger errors can occur.
 
 The final metric indicates *ResNet18* explains only ~9.1% of test subset invariance, while *ResNet101* explains ~10.5% of test invariance.
@@ -102,7 +126,20 @@ All metrics consistently indicates that bigger model *ResNet101* performs slight
 
 ## Summary
 
-As part of this project, two solutions were built to solve inventory level monitoring problems. 
-Both solutions employ ResNet architecture (*ResNet-18* and *ResNet-101*). 
-Results indicate that on average obtained models' predictions are off by 2-3 items.
-*AWS SageMaker* service was utilized to train and evaluate all solutions.
+As part of this project ResNet architecture was employed to solve object counting problem. 
+Architecture was adjusted to support regression problem. Two variants (*ResNet-18* and *ResNet-101*) were fine-tuned.
+Obtained results indicate that on average obtained models' predictions are off by 2-3 items.
+
+In this project, *AWS SageMaker* services was utilized:
+- AWS SageMaker Studio as web-based IDE
+- S3 Bucket to store dataset
+- AWS SageMaker Jobs to train 
+- AWS SageMaker Batch Transform Job to retrieve responses for test subset for models' evaluation
+
+
+## Literature
+
+[1] *Amazon Bin Image Dataset* was accessed on *2026-11-17* from https://registry.opendata.aws/amazon-bin-imagery  
+
+[2] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun: Deep Residual Learning for Image Recognition, 
+https://doi.org/10.48550/arXiv.1512.03385
