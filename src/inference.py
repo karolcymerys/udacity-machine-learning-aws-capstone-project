@@ -51,7 +51,12 @@ def input_fn(request_body, content_type):
 def predict_fn(input_data, model):
     with torch.no_grad():
         output = model(input_data.to(DEVICE)).squeeze(1)
-    return output.float().cpu().tolist()
+
+    return round_to_closest_non_negative_integer(output).cpu().tolist()
+
+
+def round_to_closest_non_negative_integer(batch):
+    return batch.round().clamp(min=0).long()
 
 
 def output_fn(prediction, accept):
