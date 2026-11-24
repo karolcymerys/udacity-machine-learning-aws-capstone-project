@@ -150,14 +150,19 @@ def test(model, test_loader, criterion):
     total_loss = .0
     count = 0
     for idx, (inputs, target_value) in enumerate(test_loader):
-        inputs, target_value = inputs.to(device, non_blocking=True), target_value.float().to(device, non_blocking=True)
+        inputs, target_value = inputs.to(device, non_blocking=True), target_value.to(device, non_blocking=True)
 
         outputs = model(inputs)
+        outputs = round_to_closest_non_negative_integer(outputs)
         loss = criterion(outputs.squeeze(1), target_value)
         total_loss += loss.item() * inputs.size(0)
         count += inputs.size(0)
 
     return reduce_mean(total_loss, count, device)
+
+
+def round_to_closest_non_negative_integer(batch):
+    return batch.round().clamp(min=0).long()
 
 
 def main(args):
