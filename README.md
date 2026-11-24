@@ -35,7 +35,7 @@ Please note that following the steps below will incur costs for your AWS account
 11. Once you finish remember to stop started instance like JupyterLab, SageMaker Training Job, SageMaker Endpoint, SageMaker Batch Transform Jobs
 
 
-1. Execute Jupyter notebook [train_and_deploy.ipynb](./train_and_deploy-solution.ipynb) in SageMaker Studio.
+1. Execute Jupyter notebook [workspace.ipynb](./workspace.ipynb) in SageMaker Studio.
 
 ## Project structure
 
@@ -48,7 +48,7 @@ udacity-machine-learning-aws-capstone-project/
 ├── proposal.md           # Proposal document as Markdown file
 ├── proposal.pdf          # Proposal document as PDF file
 ├── README.md             # Readme file
-├── report.md             # Report document as PDF file
+├── report.md             # Report document as Markdown file
 ├── report.pdf            # Report document as PDF file
 ├── requirements.txt      # File containing required Python packages
 ├── workspace.ipynb       # Workspace as Jupter Notebook
