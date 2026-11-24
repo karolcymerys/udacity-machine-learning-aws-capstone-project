@@ -206,6 +206,7 @@ def main(args):
 
     no_improvement_epochs = 0
     best_loss = float('inf')
+    best_model_index = None
     # Training loop
     for epoch in range(args.epochs):
         logger.info(f"Epoch {epoch + 1}/{args.epochs}")
@@ -227,16 +228,30 @@ def main(args):
         if val_avg_loss < best_loss:
             best_loss = val_avg_loss
             no_improvement_epochs = 0
+            best_model_index = epoch
         else:
             no_improvement_epochs += 1
+
+        # Save the model at current epoch
+        if is_leader:
+            torch.save(model.module.state_dict(), os.path.join(args.model_dir, f"model_{epoch}.pth"))
+        dist.barrier()
 
         if no_improvement_epochs >= args.no_improvement_threshold:
             logger.info(f"Early stopping at epoch {epoch + 1}")
             break
 
-    # Save the trained model
     if is_leader:
-        torch.save(model.module.state_dict(), os.path.join(args.model_dir, "model.pth"))
+        # Keep only the best nodel
+        saved_models = os.listdir(args.model_dir)
+        for model_file in saved_models:
+            if model_file == f'model_{best_model_index}.pth':
+                os.rename(
+                    os.path.join(args.model_dir, model_file),
+                    os.path.join(args.model_dir, "model.pth")
+                )
+            else:
+                os.remove(os.path.join(args.model_dir, model_file))
 
         tensorboard_writer.flush()
         tensorboard_writer.close()
