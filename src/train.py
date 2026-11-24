@@ -21,7 +21,6 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 TRAIN_TRANSFORM = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomVerticalFlip(p=0.5),
     transforms.ColorJitter(
         brightness=0.1,
         contrast=0.1,
@@ -62,6 +61,10 @@ def net(version, local_rank, device):
     # Freeze all pretrained parameters
     for param in model.parameters():
         param.requires_grad = False
+
+    # Unfreeze parameters of layer4
+    for param in model.layer4.parameters():
+        param.requires_grad = True
 
     # Replace the final fully connected layer
     num_features = model.fc.in_features
@@ -107,7 +110,8 @@ def create_data_loaders(train_data_path,
             batch_size=batch_size,
             sampler=validation_sampler,
             num_workers=loading_workers,
-            pin_memory=True
+            pin_memory=True,
+            persistent_workers=loading_workers > 0
         )
     )
 
@@ -150,7 +154,7 @@ def test(model, test_loader, criterion):
     total_loss = .0
     count = 0
     for idx, (inputs, target_value) in enumerate(test_loader):
-        inputs, target_value = inputs.to(device, non_blocking=True), target_value.to(device, non_blocking=True)
+        inputs, target_value = inputs.to(device, non_blocking=True), target_value.long().to(device, non_blocking=True)
 
         outputs = model(inputs)
         outputs = round_to_closest_non_negative_integer(outputs)
@@ -191,10 +195,11 @@ def main(args):
     )
 
     # Define loss function
-    loss_criterion = nn.SmoothL1Loss()
+    loss_criterion = nn.L1Loss()
 
     # Define optimizer
     optimizer = torch.optim.Adam((p for p in model.parameters() if p.requires_grad), lr=args.lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
 
     logger.info(
         "Starting training with the following parameters: "
@@ -237,6 +242,8 @@ def main(args):
         else:
             no_improvement_epochs += 1
 
+        scheduler.step()
+
         # Save the model at current epoch
         if is_leader:
             torch.save(model.module.state_dict(), os.path.join(args.model_dir, f"model_{epoch}.pth"))
@@ -271,14 +278,14 @@ if __name__ == '__main__':
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=256,
-        help="input batch size for training (default: 256)",
+        default=128,
+        help="input batch size for training (default: 128)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=50,
-        help="number of epochs to train (default: 50)",
+        default=10,
+        help="number of epochs to train (default: 10)",
     )
     parser.add_argument(
         "--lr",
@@ -295,14 +302,14 @@ if __name__ == '__main__':
     parser.add_argument(
         "--loading-workers",
         type=int,
-        default=2,
-        help="Number of loading workers (default: 2)"
+        default=3,
+        help="Number of loading workers (default: 3)"
     )
     parser.add_argument(
         "--no-improvement-threshold",
         type=int,
-        default=5,
-        help="Number of epoch with no improvement when training should be stopped (default: 5)"
+        default=3,
+        help="Number of epoch with no improvement when training should be stopped (default: 3)"
     )
 
     parser.add_argument(

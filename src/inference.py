@@ -1,3 +1,4 @@
+import base64
 import io
 import json
 import os
@@ -44,6 +45,17 @@ def input_fn(request_body, content_type):
     if content_type in ("application/x-image", "image/jpeg", "image/png", "application/octet-stream"):
         image = Image.open(io.BytesIO(request_body)).convert("RGB")
         return transform(image).unsqueeze(0)
+    elif content_type == "application/jsonlines":
+        if isinstance(request_body, bytes):
+            request_body = request_body.decode("utf-8")
+
+        batch = []
+        for line in request_body.splitlines():
+            if not line.strip():
+                continue
+            img = Image.open(io.BytesIO(base64.b64decode(line))).convert("RGB")
+            batch.append(transform(img))
+        return torch.stack(batch)
 
     raise ValueError(f"Unsupported content type: {content_type}")
 
