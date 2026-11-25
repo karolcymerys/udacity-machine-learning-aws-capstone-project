@@ -154,7 +154,7 @@ def test(model, test_loader, criterion):
     total_loss = .0
     count = 0
     for idx, (inputs, target_value) in enumerate(test_loader):
-        inputs, target_value = inputs.to(device, non_blocking=True), target_value.long().to(device, non_blocking=True)
+        inputs, target_value = inputs.to(device, non_blocking=True), target_value.float().to(device, non_blocking=True)
 
         outputs = model(inputs)
         outputs = round_to_closest_non_negative_integer(outputs)
@@ -166,7 +166,7 @@ def test(model, test_loader, criterion):
 
 
 def round_to_closest_non_negative_integer(batch):
-    return batch.round().clamp(min=0).long()
+    return batch.round().clamp(min=0).float()
 
 
 def main(args):

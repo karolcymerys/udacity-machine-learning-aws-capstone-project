@@ -34,9 +34,6 @@ Please note that following the steps below will incur costs for your AWS account
 10. You're ready to start
 11. Once you finish remember to stop started instance like JupyterLab, SageMaker Training Job, SageMaker Endpoint, SageMaker Batch Transform Jobs
 
-
-1. Execute Jupyter notebook [workspace.ipynb](./workspace.ipynb) in SageMaker Studio.
-
 ## Project structure
 
 ```text

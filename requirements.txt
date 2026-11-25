@@ -6,8 +6,10 @@ orjson
 pandas
 sagemaker
 seaborn
-sklearn
+scikit-learn
+scipy
 tensorboard
 torch
 torchvision
+tqdm
 Pillow
