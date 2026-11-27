@@ -8655,7 +8655,7 @@ Channels: ('R', 'G', 'B')
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Bin on third image contains 20 items. There are two or four cardboard packagings, metal object and many plastic packaging. Elastic retention cords cutting across image visible again, but this time in upper part too. For human it's not easy to confirm that bin contains 20 images purly based on photo.</p>
+<p>Bin on third image contains 20 items. There are two or four cardboard packagings, metal object and many plastic packaging. Elastic retention cords cutting across image visible again, but this time in upper part too. For human it's not easy to confirm that bin contains 20 items purly based on photo.</p>
 </div>
 </div>
 </div>
@@ -8718,7 +8718,7 @@ Channels: ('R', 'G', 'B')
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Last image contains 150 items. It contains one big cardboard packagins and numerous smaller items, most probably envelopes. Elastic retention cords cutting across upper and bottom parts of image are present again. It's impossible to confirm that bin contains 150 images.</p>
+<p>Last image contains 150 items. It contains one big cardboard packagins and numerous smaller items, most probably envelopes. Elastic retention cords cutting across upper and bottom parts of image are present again. It's impossible to confirm that bin contains 150 items.</p>
 </div>
 </div>
 </div>
@@ -10081,7 +10081,7 @@ download: s3://sagemaker-us-east-1-606487093675/v2/test-predictions/resnet18/man
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Let's see training and validation loss functions while training ResNet-101</p>
 <p><img alt="" src="assets/resnet-101-loss.png"/></p>
-<p>We can clearly see that training loss consistently decreases, while validation error descreases until epoch 5, then grows in epoch 6 and then starts descreasing again. This phenomena can suggests that model started to overfit. Another explaination can be provided by fact that for training loss rounding to closest non-integer zero was skipped to avoid problems with optimization. It allows training error to descrease gradually, while validation error may improve in discrete steps. However, to prove that theory we would need more epochs.</p>
+<p>We can clearly see that training loss consistently decreases, while validation error decreases until epoch 5, then grows in epoch 6 and then starts decreasing again. This phenomena can suggests that model started to overfit. Another explanation can be provided by fact that for training loss, rounding to closest non-negative integer was skipped to avoid problems with optimization. It allows training error to decrease gradually, while validation error may improve in discrete steps. However, to prove that theory we would need more epochs.</p>
 </div>
 </div>
 </div>
@@ -10637,7 +10637,7 @@ download: s3://sagemaker-us-east-1-606487093675/v2/test-predictions/resnet101/ma
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>We can see that $p = 2.5981e-20$. Asuming significace level value $\alpha = 0.001$, we can reject null-hypothesis ($p &lt; \alpha$) stating that medians of both populations (errors) are the same. It proves statistical difference between performance of both models.</p>
+<p>We can see that $p = 2.5981 × 10^{-20}$. Assuming significace level value $\alpha = 0.001$, we can reject null-hypothesis ($p &lt; \alpha$) stating that medians of both populations (errors) are the same. It provides strong statistical evidence of difference between performance of both models.</p>
 </div>
 </div>
 </div>
@@ -10648,7 +10648,7 @@ download: s3://sagemaker-us-east-1-606487093675/v2/test-predictions/resnet101/ma
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">¶</a></h2><p>The goal of this notebook was reached. I managed to obtain models for object counting for images of bins from Amazon Bin Dataset. Dataset was retrieved, analysed, split into train, validation and test subsets and saved in workspace S3 bucket. Two variants of ResNet were adjusted to solve classification problem and fine-tuned using multi-instance training using SageMaker Training Jobs. Additionally Transform Batch Job was used to evaluate obtained models on test subset. For comparision MAE, RMSE and <em>R^2</em> were applied. They indicate that models' predictions are ~1.5-1.6 item off. Additionally, Wilcoxon Signed-rank test was utilized to prove statistical errors' difference between ResNet101 and ResNet16. ResNet101 is reported as the best obtained model.</p>
+<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">¶</a></h2><p>The goal of this notebook was reached. I managed to obtain models for object counting for images of bins from Amazon Bin Dataset. Dataset was retrieved, analysed, split into train, validation and test subsets and saved in workspace S3 bucket. Two variants of ResNet were adjusted to solve regression problem and fine-tuned using multi-instance training using SageMaker Training Jobs. Additionally Transform Batch Job was used to evaluate obtained models on test subset. For comparison MAE, RMSE and <em>R^2</em> were applied. They indicate that models' predictions are ~1.5-1.6 item off. Additionally, Wilcoxon Signed-rank test was utilized to prove statistical errors' difference between ResNet101 and ResNet18. ResNet101 is reported as the best obtained model.</p>
 </div>
 </div>
 </div>

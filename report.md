@@ -15,13 +15,13 @@ Dataset contains over 500 000 images of bins with items captured during normal o
 Additionally, for each image manifest file is supplemented that provides metadata: number of items in bins and other characteristics, like: name, size, weights, etc.
 Dataset can be easily obtained from publicly available S3 Bucket **aft-vbi-pds**.
 
-Performed analysis reveled that dataset contains **536 434** images and number of items in bins ranges from 0 objects to 209 objects.
+Performed analysis revealed that dataset contains **536 434** images and number of items in bins ranges from 0 objects to 209 objects.
 Below plot depicts that number of items in bins in not uniformly distributed: 
 dataset contains much more instances of images for smaller bins (less than 10) than for larger bins.
 
 ![Class distribution](assets/class_distribution.png)
 
-In can be observed that for larger bins, dataset misses images for some quantities (gaps above 100 on axis). 
+It can be observed that for larger bins, dataset misses images for some quantities (gaps above 100 on axis). 
 Additionally, there are few quantities with only 1 or 2 images.
 
 Despite identified unbalanced number of samples per quantity, no transformations were applied as remedy for this problem.
@@ -36,9 +36,9 @@ Four images were investigated to better understand dataset. Analysis allowed to 
 * size (width and height) of images varies, sizes of analysed images: (438x562), (616x586), (472x364), (355x537)
 * all sampled images are JPEG files
 * items in bins seem to be mostly cardboard or plastic packaging
-* images contain items that are not inside binds like (elastic retention cords, turnbuckle, background)
-* large bins (bins with a lot of items) usually contain a lot of tightly stacked small items (e.g. envelops)
-* for human it's hard, or it's almost impossible to count items purely based on image
+* images contain items that are not inside bins like (elastic retention cords, turnbuckle, background)
+* large bins (bins with a lot of items) usually contain a lot of tightly stacked small items (e.g. envelopes)
+* for human, it's hard, or it's almost impossible to count items purely based on image
 * some products may be obscured or barely visible
 
 For training and evaluation purposes dataset was split into three dataset with below proportions:
@@ -75,7 +75,7 @@ On provided images following transformation were performed:
     * R channel: mean: 0.485, std: 0.229
     * G channel: mean: 0.456, std: 0.224
     * B channel: mean: 0.406, std: 0.225
-* testing:
+* testing and validation:
   * resizing to 224x224
   * normalized across RGB-channels with following mean-std pairs
     * R channel: mean: 0.485, std: 0.229
@@ -83,9 +83,9 @@ On provided images following transformation were performed:
     * B channel: mean: 0.406, std: 0.225
 
 Justifications:
-* images were resized to 224x244 since this is standard images size for ResNet, 
+* images were resized to 224x224 since this is standard images size for ResNet, 
   all images must have the same width and height values to leverage mini-batching,
-  this transformation will lead to geometric squashing, but proportions should be maintained allowing to solve main problem 
+  this transformation will lead to geometric squashing, altering aspect radio, but that will not disable solving main problem - counting objects 
 * for data augmentation images from trainset are randomly horizontally flipped allowing to introduce more variations for positions of items
 * colour jittering is used for data augmentation, images from training are randomly changed with up to 10% of brightness, contrast and saturation of image making model less sensitive to these properties
 * additionally, mini-batches were normalized across RGB channels, applied values are broadly used while dealing with vision models
@@ -156,7 +156,7 @@ Additionally, early stopping procedure was implemented: if loss function value o
 That should allow to save time and money when next iterations don't conclude with performance gains.
 Additionally, in order to reduce learning rate value Cosine Annealing was employed. 
 It gradually reduces the learning rate value following a cosine function. 
-The maximum annealing period was set to 10 (number of epochs) and minimum learning rate was set to $10^-6$.
+The maximum annealing period was set to 10 (number of epochs) and minimum learning rate was set to $10^{-6}$.
 This configuration allows to improve convergence stability and final model performance.
 
 As loss function **Mean Absolute Error** was selected as it's one of classical choices for regression problems.
@@ -195,7 +195,7 @@ Another more likely reason can be explained by different definition of these met
 In such case training loss would consistently decrease (which is observed on these charts) and validation loss would decrease in discrete steps (to confirm that more epochs would be required).
 
 The best models (based on validation dataset) were achieved at epoch 7 (Resnet-18) and epoch 9 (ResNet-101). 
-For these models following errors were reported on validation dataset: 1.6 and 1.57, which says that on average these models' predications are off by about 1.6 item for every image.
+For these models following errors were reported on validation dataset: 1.61 and 1.57, which says that on average these models' predications are off by about 1.6 item for every image.
 
 ## Evaluation
 
@@ -267,9 +267,9 @@ For both models, $R^2$ indicates that 44%-49% of test subset variance is explain
 Additionally, paired significant test was performed to statistically prove that obtained ResNet-101 performs better than ResNet-18.
 *Wilcoxon signed-rank* test was utilized, which makes a hypothesis that there is no difference between median of two populations.
 For this purpose, absolute error was applied for true and predicted values for both models and obtained errors were used as input to test.
-Test allowed to obtain $p = 2.5981$ which is less than assumed  $\alpha = 0.001$, null-hypothesis stating that medians of both populations (errors) are the same
+Test allowed to obtain $p = 2.5981 × 10^{-20}$ which is less than assumed  $\alpha = 0.001$, null-hypothesis stating that medians of both populations (errors) are the same
 can be rejected. Therefore, there is statistical difference between errors made by these models. 
-Since other metrics indicates that ResNet-101 performs better than ResNet-18, it concludes that ResNet-101 preforms better than ResNet-18
+Since other metrics indicates that ResNet-101 performs better than ResNet-18, it provides strong statistical evidence that ResNet-101 preforms better than ResNet-18
 
 It's worth to take into account complexity of two models. ResNet-101 contains ~44.5M parameters while ResNet-18 has ~11.7M parameters.
 Due to that fact training time and more importantly inferences requires more computational resources to process single request for ResNet-101 than ResNet-18,
@@ -301,7 +301,7 @@ obtained results are quite decent.
 
 Following direction could be explored to seek for performance gains:
 * Using strategy that takes into account quantity imbalance in dataset, so predictions for larger bins can be improved
-* Performing training a little longer, since performed analysis reveled that model did not stop improving 
+* Performing training a little longer, since performed analysis revealed that model did not stop improving (that will require increasing $T$ value for Cosine Annealing Learning Rate Scheduler, it should be set to number of epochs)
 * Hyperparameters tuning
 
 In this project, *AWS SageMaker* services was utilized:
